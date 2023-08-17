@@ -2,7 +2,16 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.pyc
+*.bag
+.vscode/
+images/
+brisque/
+metadata/
+segmentation/
+*.jpg
+*.rar
+*.txt
 # C extensions
 *.so
 
