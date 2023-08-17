@@ -20,6 +20,7 @@ import cv2
 import datetime
 import math
 import time
+import pywt
 from utils import get_all_frames, show_img, ScoreToColorConv
 # from segmentation.predictor import predict_from_array
 # from brisque.get_brisque_features import brisque
@@ -160,6 +161,7 @@ def LAP_DIAG(img):
     x2_val = np.absolute(cv2.filter2D(img,-1,x2_kernel)).sum()
     return x_val + y_val + x1_val + x2_val
 
+#STA2
 def EIG_SUM(img: np.ndarray):
     # suma de los k mayores valores propios de la imagen
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -172,6 +174,26 @@ def EIG_SUM(img: np.ndarray):
         result += s[-1*i]
     return result
 
+def WAV_COEF(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, (cH, cV, cD) = pywt.dwt2(img,'db6')
+    return np.absolute(cH).sum() +  np.absolute(cV).sum() + np.absolute(cD).sum()
+
+def WAV_VAR(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, (cH, cV, cD) = pywt.dwt2(img,'db6')
+    return np.absolute(cH).var() +  np.absolute(cV).var() + np.absolute(cD).var()
+
+def WAV_RAT(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    coef = pywt.wavedec2(img, 'db6', level=3)
+    cA3,_,_,(cH,cV,cD) = coef
+    Mh = (cH**2).sum() + (cV**2).sum() + (cD**2).sum()
+    Ml = (cA3**2).sum()
+    return Mh/Ml
+
+
+
 def resize_decorator(f, h,w):
     def new_func(img):
         img = cv2.resize(img,(w,h))
@@ -181,4 +203,8 @@ def resize_decorator(f, h,w):
 print('STARTED')
 arr = get_all_frames(input_path)
 print('ALL FRAMES LOADED')
-review_frames(arr,EIG_SUM)
+review_frames(arr,WAV_RAT)
+
+
+
+
